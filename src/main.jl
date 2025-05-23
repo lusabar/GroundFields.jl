@@ -3,49 +3,58 @@ using .GroundFields
 
 const r = 6e-2
 const R = 13e-2
+const n = 6
 const altura = 1
 
-# Pontos onde estão alocadas as cargas
-j = [
-    Point(-12, 19.1 - r);
-    Point(0, 19.1 - r);
-    Point(12, 19.1 - r);
-    Point(-9.5, 23.7 - r);
-    Point(9.5, 23.7 - r)
-    Point(-12, 19.1 + r);
-    Point(0, 19.1 + r);
-    Point(12, 19.1 + r);
-    Point(-9.5, 23.7 + r);
-    Point(9.5, 23.7 + r)
-]
 
 
-# Potencial nos pontos de contorno
-ϕ = [288;
-    pol(288, -120);
-    pol(288, 120);
-    0;
-    0;
-    288;
-    pol(288, -120);
-    pol(288, 120);
-    0;
-    0
-]
+## Pontos onde estão alocadas as cargas
+#j = [
+#    Point(-12, 19.1 - r);
+#    Point(0, 19.1 - r);
+#    Point(12, 19.1 - r);
+#    Point(-9.5, 23.7 - r);
+#    Point(9.5, 23.7 - r)
+#    Point(-12, 19.1 + r);
+#    Point(0, 19.1 + r);
+#    Point(12, 19.1 + r);
+#    Point(-9.5, 23.7 + r);
+#    Point(9.5, 23.7 + r)
+#]
+#
+#
+## Potencial nos pontos de contorno
+#ϕ = [288;
+#    pol(288, -120);
+#    pol(288, 120);
+#    0;
+#    0;
+#    288;
+#    pol(288, -120);
+#    pol(288, 120);
+#    0;
+#    0
+#]
+#
+## Pontos de contorno
+#i = [
+#    Point(-12, 19.1 - R);
+#    Point(0, 19.1 - R);
+#    Point(12, 19.1 - R);
+#    Point(-9.5, 23.7 - R);
+#    Point(9.5, 23.7 - R)
+#    Point(-12, 19.1 + R);
+#    Point(0, 19.1 + R);
+#    Point(12, 19.1 + R);
+#    Point(-9.5, 23.7 + R);
+#    Point(9.5, 23.7 + R)
+#]
 
-# Pontos de contorno
-i = [
-    Point(-12, 19.1 - R);
-    Point(0, 19.1 - R);
-    Point(12, 19.1 - R);
-    Point(-9.5, 23.7 - R);
-    Point(9.5, 23.7 - R)
-    Point(-12, 19.1 + R);
-    Point(0, 19.1 + R);
-    Point(12, 19.1 + R);
-    Point(-9.5, 23.7 + R);
-    Point(9.5, 23.7 + R)
-]
+(j, ϕ, i) = create_jϕi([
+    Conductor(Point(0, 15), 288e+3, r, R, n);
+    Conductor(Point(0, 19.1), pol(288e+3, -120), r, R, n);
+    Conductor(Point(0, 25), pol(288e+3, 120), r, R, n)
+])
 
 P = calculate_coeff_matrix(i, j)
 println(P)
@@ -109,15 +118,25 @@ end
 #E = E1
 
 Emed = E[1:end, 1]
+Emax = E[1:end, 1]
+Emin = E[1:end, 1]
 
 using Statistics
 for i in 1:size(E, 1)
     global Emed[i, 1] = mean(E[i, 1:end])
 end
 
+for i in 1:size(E, 1)
+    global Emax[i, 1] = maximum(E[i, 1:end])
+end
+
+for i in 1:size(E, 1)
+    global Emin[i, 1] = minimum(E[i, 1:end])
+end
+
 #println("E: $E")
 
 using Plots
-plt = plot(x, [Emed])
+plt = plot(x, [Emax, Emin], pallete=:thermal, title="Campo elétrico ao nível do solo (1m)", label="Trifásico horizontal")
 display(plt)
 
