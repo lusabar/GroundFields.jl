@@ -1,4 +1,5 @@
-export calculate_coeff_matrix, calculate_electric_field, calculate_electric_field_vector
+export calculate_coeff_matrix, calculate_electric_field, calculate_electric_field_vector,
+    create_jϕi
 
 function calculate_coeff(p1::Point, p2::Point)
     x = p1.posx
@@ -58,4 +59,51 @@ function calculate_electric_field_vector(points::Vector{Point}, pointcharges::Ve
         E = [E; calculate_electric_field(points[i], pointcharges, charges)]
     end
     return E
+end
+
+function create_jϕi(cond::Conductor)
+    center = cond.position
+    n = cond.number_of_charges
+    r = cond.radius_charges
+    R = cond.radius_boundary
+    v = cond.potential
+
+    j = Array{Union{Missing,Point},1}(missing, n)
+    ϕ = Array{Number,1}(undef, n)
+    fill!(ϕ, v)
+    i = Array{Union{Missing,Point},1}(missing, n)
+
+    angles = Array{Number,1}(undef, n)
+    for x in 0:(n-1)
+        angles[x+1] = 0 + (360 / n) * x
+    end
+    angles = deg2rad.(angles)
+
+    for x in 1:n
+        j[x] = center + Point(r * cos(angles[x]), r * sin(angles[x]))
+        i[x] = center + Point(R * cos(angles[x]), R * sin(angles[x]))
+    end
+
+    return (j, ϕ, i)
+end
+
+# j is the vector of points where the charges are allocated
+# ϕ is the vector of the potential on boundary points
+# i is the vector of boundary points
+function create_jϕi(conductors::Array{Conductor})
+    j = []
+    ϕ = []
+    i = []
+    for cond in conductors
+        (j_tmp, ϕ_tmp, i_tmp) = create_jϕi(cond)
+        j = [j; j_tmp]
+        ϕ = [ϕ; ϕ_tmp]
+        i = [i; i_tmp]
+    end
+
+    j = identity.(j)
+    i = identity.(i)
+    ϕ = identity.(ϕ)
+
+    return (j, ϕ, i)
 end
