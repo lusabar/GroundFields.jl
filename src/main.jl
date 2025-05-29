@@ -1,14 +1,46 @@
 include("GroundFields.jl")
 using .GroundFields
 
-const outfile = "hexa-acebdf.dat"
+const outfile = "data/hexa-camargo.dat"
 
-const R = 1.3265e-2
+const R = 23.55e-3 / 2
 const r = R / 2
-const n = 12
+const n = 6
 const altura = 1
 # Voltage line-ground peak
-const vlgpk = (345e+3 / sqrt(3)) * sqrt(2)
+const vlgpk = (138e+3) * sqrt(2)
+
+# Constantes Radwan
+const H1 = 10
+const H2 = H1 + 9.2
+const H3 = H1 + 19.4
+const B1 = 8.55
+const B2 = 4.5
+const B3 = 8.55
+const D = 0.3
+const Rc = 0.0135
+const rc = 0.05 * Rc
+const voltage_lineground = (220e+3 / sqrt(3)) * sqrt(2)
+
+# Constantes linha estudada
+const fase1 = Point(-4.3, 33.27)
+const fase2 = Point(-4.3, 29.17)
+const fase3 = Point(-4.3, 25.07)
+const fase4 = Point(4.3, 25.07)
+const fase5 = Point(4.3, 29.17)
+const fase6 = Point(4.3, 33.27)
+## Fase 1: A
+#bundle3(Point(-4.3, 33.27), vlgpk);
+## Fase 2: B
+#bundle3(Point(-4.3, 29.17), pol(vlgpk, -60));
+## Fase 3: C
+#bundle3(Point(-4.3, 25.07), pol(vlgpk, -120));
+## Fase 4: D
+#bundle3(Point(4.3, 25.07), pol(vlgpk, -180));
+## Fase 5: E
+#bundle3(Point(4.3, 29.17), pol(vlgpk, -240));
+## Fase 6: F
+#bundle3(Point(4.3, 33.27), pol(vlgpk, -300));
 
 ## Pontos onde estão alocadas as cargas
 #j = [
@@ -125,23 +157,70 @@ end
     ## Fase 6: B
     #bundle3(Point(4.3, 33.27), pol(vlgpk, -60));
 
-    # Hexafásico - ACEBDF
-    # Fase 1: A
-    bundle3(Point(-4.3, 33.27), vlgpk);
-    # Fase 2: C
-    bundle3(Point(-4.3, 29.17), pol(vlgpk, -120));
-    # Fase 3: E
-    bundle3(Point(-4.3, 25.07), pol(vlgpk, -240));
-    # Fase 4: B
-    bundle3(Point(4.3, 25.07), pol(vlgpk, -60));
-    # Fase 5: D
-    bundle3(Point(4.3, 29.17), pol(vlgpk, -180));
-    # Fase 6: F
-    bundle3(Point(4.3, 33.27), pol(vlgpk, -300));
+    ## Hexafásico - ACEBDF
+    ## Fase 1: A
+    #bundle3(Point(-4.3, 33.27), vlgpk);
+    ## Fase 2: C
+    #bundle3(Point(-4.3, 29.17), pol(vlgpk, -120));
+    ## Fase 3: E
+    #bundle3(Point(-4.3, 25.07), pol(vlgpk, -240));
+    ## Fase 4: B
+    #bundle3(Point(4.3, 25.07), pol(vlgpk, -60));
+    ## Fase 5: D
+    #bundle3(Point(4.3, 29.17), pol(vlgpk, -180));
+    ## Fase 6: F
+    #bundle3(Point(4.3, 33.27), pol(vlgpk, -300));
 
     # Cabos de Guarda
-    Conductor(Point(-4.3, 36.86), 0, 0.771e-2 / 2, 0.771e-2, n);
-    Conductor(Point(4.3, 36.86), 0, 0.72e-2 / 2, 0.72e-2, n)
+    #Conductor(Point(-4.3, 36.86), 0, 0.771e-2 / 2, 0.771e-2, n);
+    #Conductor(Point(4.3, 36.86), 0, 0.72e-2 / 2, 0.72e-2, n)
+
+    #Teste Camargo
+    #Trifásico
+    #Fase1: a
+    #Conductor(Point(-2.7, 32.4), pol(vlgpk, 0), r, R, n);
+    ##Fase2: b
+    #Conductor(Point(-2.7, 28.4), pol(vlgpk, -120), r, R, n);
+    ##Fase3: c
+    #Conductor(Point(-2.7, 24.25), pol(vlgpk, +120), r, R, n);
+    ##Fase4: c
+    #Conductor(Point(2.7, 24.25), pol(vlgpk, +120), r, R, n);
+    ##Fase5: b
+    #Conductor(Point(2.7, 28.4), pol(vlgpk, -120), r, R, n);
+    ##Fase6: a
+    #Conductor(Point(2.7, 32.4), pol(vlgpk, 0), r, R, n);
+    #Hexafásico
+    #Fase1: a
+    #Conductor(Point(-2.7, 32.4), pol(vlgpk, 0), r, R, n);
+    ##Fase2: b
+    #Conductor(Point(-2.7, 28.4), pol(vlgpk, -60), r, R, n);
+    ##Fase3: c
+    #Conductor(Point(-2.7, 24.25), pol(vlgpk, -120), r, R, n);
+    ##Fase4: d
+    #Conductor(Point(2.7, 24.25), pol(vlgpk, -180), r, R, n);
+    ##Fase5: e
+    #Conductor(Point(2.7, 28.4), pol(vlgpk, -240), r, R, n);
+    ##Fase6: f
+    #Conductor(Point(2.7, 32.4), pol(vlgpk, -300), r, R, n);
+    ## Para-raio Camargo
+    #Conductor(Point(0, 37.7), 0, 9.52e-3 / 2, 9.52e-3, n)
+
+    # Teste Radwan
+    # Fase C
+    Conductor(Point(B1 + D / 2, H1), pol(voltage_lineground, +120), rc, Rc, n);
+    Conductor(Point(B1 - D / 2, H1), pol(voltage_lineground, +120), rc, Rc, n);
+    Conductor(Point(-B1 + D / 2, H1), pol(voltage_lineground, +120), rc, Rc, n);
+    Conductor(Point(-B1 - D / 2, H1), pol(voltage_lineground, +120), rc, Rc, n);
+    # Fase B
+    Conductor(Point(B2 + D / 2, H2), pol(voltage_lineground, -120), rc, Rc, n);
+    Conductor(Point(B2 - D / 2, H2), pol(voltage_lineground, -120), rc, Rc, n);
+    Conductor(Point(-B2 + D / 2, H2), pol(voltage_lineground, -120), rc, Rc, n);
+    Conductor(Point(-B2 - D / 2, H2), pol(voltage_lineground, -120), rc, Rc, n);
+    # Fase A
+    Conductor(Point(B3 + D / 2, H3), pol(voltage_lineground, 0), rc, Rc, n);
+    Conductor(Point(B3 - D / 2, H3), pol(voltage_lineground, 0), rc, Rc, n);
+    Conductor(Point(-B3 + D / 2, H3), pol(voltage_lineground, 0), rc, Rc, n);
+    Conductor(Point(-B3 - D / 2, H3), pol(voltage_lineground, 0), rc, Rc, n)
 ])
 
 P = calculate_coeff_matrix(i, j)
@@ -168,7 +247,7 @@ end
 #Q4 = value_at_t.(Q, 16.67)
 
 pointvector = []
-x = range(-60, 60, 200)
+x = range(-100, 100, 200)
 for i in x
     global pointvector = [pointvector; Point(i, altura)]
 end
@@ -208,11 +287,12 @@ end
 
 #println("E: $E")
 
-using DelimitedFiles
-open(outfile, "w") do io
-    writedlm(io, [x Emax Emed])
-end
+#using DelimitedFiles
+#open(outfile, "w") do io
+#    writedlm(io, [x Emax Emed])
+#end
 
-#using Plots
-#plt = plot(x, [Emax, Emed], pallete=:acton, title="Campo elétrico ao nível do solo (1m)", label="Trifásico horizontal")
-#display(plt)
+using Plots
+plt = plot(x, [Emax, Emed], pallete=:acton, title="Campo elétrico ao nível do solo (1m)", label=["Radwan (máximo)" "Radwan (médio)"])
+display(plt)
+#savefig(plt, "radwan.svg")

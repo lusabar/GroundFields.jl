@@ -7,5 +7,7 @@ datHex = readdlm("hexa-abcdef.dat")
 datHexAlternativo = readdlm("hexa-acefdb.dat")
 datHexwACEBDF = readdlm("hexa-acebdf.dat")
 
-plotMax = plot(datHex[:, 1], [datTriOriginal[:, 2] datTriAlternativo[:, 2] datHex[:, 2] datHexAlternativo[:, 2] datHexwACEBDF[:, 2]],
+plotMax = plot(datHex[:, 1], [datTriOriginal[:, 3] datTriAlternativo[:, 3] datHex[:, 3] datHexAlternativo[:, 3] datHexwACEBDF[:, 3]],
     label=["Trifásico original (abcabc)" "Trifásico Alternativo (abccba)" "Hexafásico (abcdef)" "Hexafásico alternativo (acefdb)" "Hexafásico alternativo (acebdf)"])
+
+savefig("ouput.svg")
