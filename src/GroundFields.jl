@@ -5,5 +5,6 @@ ln = log
 
 include("charges.jl")
 include("potentials.jl")
+include("processing.jl")
 
 end
