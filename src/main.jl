@@ -41,61 +41,6 @@ const va_tri = pol(vlgpk, 0)
 const vb_tri = pol(vlgpk, -120)
 const vc_tri = pol(vlgpk, +120)
 
-## Fase 1: A
-#bundle3(Point(-4.3, 33.27), vlgpk);
-## Fase 2: B
-#bundle3(Point(-4.3, 29.17), pol(vlgpk, -60));
-## Fase 3: C
-#bundle3(Point(-4.3, 25.07), pol(vlgpk, -120));
-## Fase 4: D
-#bundle3(Point(4.3, 25.07), pol(vlgpk, -180));
-## Fase 5: E
-#bundle3(Point(4.3, 29.17), pol(vlgpk, -240));
-## Fase 6: F
-#bundle3(Point(4.3, 33.27), pol(vlgpk, -300));
-
-## Pontos onde estão alocadas as cargas
-#j = [
-#    Point(-12, 19.1 - r);
-#    Point(0, 19.1 - r);
-#    Point(12, 19.1 - r);
-#    Point(-9.5, 23.7 - r);
-#    Point(9.5, 23.7 - r)
-#    Point(-12, 19.1 + r);
-#    Point(0, 19.1 + r);
-#    Point(12, 19.1 + r);
-#    Point(-9.5, 23.7 + r);
-#    Point(9.5, 23.7 + r)
-#]
-#
-#
-## Potencial nos pontos de contorno
-#ϕ = [288;
-#    pol(288, -120);
-#    pol(288, 120);
-#    0;
-#    0;
-#    288;
-#    pol(288, -120);
-#    pol(288, 120);
-#    0;
-#    0
-#]
-#
-## Pontos de contorno
-#i = [
-#    Point(-12, 19.1 - R);
-#    Point(0, 19.1 - R);
-#    Point(12, 19.1 - R);
-#    Point(-9.5, 23.7 - R);
-#    Point(9.5, 23.7 - R)
-#    Point(-12, 19.1 + R);
-#    Point(0, 19.1 + R);
-#    Point(12, 19.1 + R);
-#    Point(-9.5, 23.7 + R);
-#    Point(9.5, 23.7 + R)
-#]
-
 # Separação entre condutores
 l = 457e-3
 # Distância do ponto de fixação aos condutores do feixe
