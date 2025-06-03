@@ -1,6 +1,6 @@
 export calculate_E
 
-function calculate_E(j::Vector{Point}, ϕ::Vector{Number}, i::Vector{Point}, altura::Number, n_times::Integer, n_points::Integer)
+function calculate_E(j::Vector{Point}, ϕ::Vector{Nums}, i::Vector{Point}, altura::Number, n_times::Integer, n_points::Integer) where {Nums<:Union{Complex,Number}}
 
     P = calculate_coeff_matrix(i, j)
     #println(P)
@@ -17,7 +17,7 @@ function calculate_E(j::Vector{Point}, ϕ::Vector{Number}, i::Vector{Point}, alt
     times = range(0, 16.67e-3, n_times)
     Q_at_specific_times = value_at_t.(Q, 0)
     for i in 2:length(times)
-        global Q_at_specific_times = [Q_at_specific_times value_at_t.(Q, times[i])]
+        Q_at_specific_times = [Q_at_specific_times value_at_t.(Q, times[i])]
     end
 
     #Q1 = value_at_t.(Q, 0)
@@ -28,7 +28,7 @@ function calculate_E(j::Vector{Point}, ϕ::Vector{Number}, i::Vector{Point}, alt
     pointvector = []
     x = range(-100, 100, n_points)
     for i in x
-        global pointvector = [pointvector; Point(i, altura)]
+        pointvector = [pointvector; Point(i, altura)]
     end
 
     #println("pointvector:")
@@ -37,8 +37,8 @@ function calculate_E(j::Vector{Point}, ϕ::Vector{Number}, i::Vector{Point}, alt
 
     E = calculate_electric_field_vector(pointvector, j, Q_at_specific_times[1:end, 1])
     for i in 2:size(Q_at_specific_times, 2)
-        global E = [E calculate_electric_field_vector(pointvector, j, Q_at_specific_times[1:end, i])]
+        E = [E calculate_electric_field_vector(pointvector, j, Q_at_specific_times[1:end, i])]
     end
 
-    return E
+    return (E, x)
 end

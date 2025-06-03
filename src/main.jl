@@ -1,7 +1,16 @@
 include("GroundFields.jl")
 using .GroundFields
+using Statistics
+using DelimitedFiles
+using Combinatorics
 
-const outfile = "data-usuais/hexa-cebdfa.dat"
+struct Permutation
+    config::String
+    Emax::Number
+    Emed::Number
+end
+
+#const outfile = "data-usuais/hexa-acebdf.dat"
 
 const R = 23.55e-3 / 2
 const r = 0.05 * R
@@ -153,12 +162,12 @@ end
     ####################### 
 
     # Hexa
-    bundle3(fase1, vc)
-    bundle3(fase2, ve)
-    bundle3(fase3, vb)
-    bundle3(fase4, vd)
-    bundle3(fase5, vf)
-    bundle3(fase6, va)
+    bundle3(fase1, va)
+    bundle3(fase2, vc)
+    bundle3(fase3, ve)
+    bundle3(fase4, vb)
+    bundle3(fase5, vd)
+    bundle3(fase6, vf)
 
 
     ## Trifásico Original
@@ -283,56 +292,122 @@ end
     #Conductor(Point(-B3 - D / 2, H3), pol(voltage_lineground, 0), rc, Rc, n)
 ])
 
-P = calculate_coeff_matrix(i, j)
-#println(P)
-
-Q = (P^-1) * ϕ
-#println(Q)
-# Valor da senoide num tempo t
-function value_at_t(q::Complex, t::Number)
-    ω = 2 * π * 60
-    qt = abs(q) * sin(ω * t + angle(q))
-    return qt
+function voltage_of_char_tri(char::Char)
+    if char == 'a'
+        return va
+    elseif char == 'b'
+        return vb_tri
+    elseif char == 'c'
+        return vc_tri
+    end
 end
 
-times = range(0, 16.67e-3, 180)
-Q_at_specific_times = value_at_t.(Q, 0)
-for i in 2:length(times)
-    global Q_at_specific_times = [Q_at_specific_times value_at_t.(Q, times[i])]
+function voltage_of_char_hex(char::Char)
+    if char == 'a'
+        return va
+    elseif char == 'b'
+        return vb
+    elseif char == 'c'
+        return vc
+    elseif char == 'd'
+        return vd
+    elseif char == 'e'
+        return ve
+    elseif char == 'f'
+        return vf
+    end
 end
 
-#Q1 = value_at_t.(Q, 0)
-#Q2 = value_at_t.(Q, 5.5566)
-#Q3 = value_at_t.(Q, 11.11333)
-#Q4 = value_at_t.(Q, 16.67)
+#config_phases_single = String.(collect(Combinatorics.permutations("abc")))
+#config_phases_double = []
+#for x in config_phases_single
+#    for y in config_phases_single
+#        global config_phases_double = [config_phases_double; x * y]
+#    end
+#end
+#config_phases_double = identity.(config_phases_double)
+#for config in config_phases_double
+#    bundle_vector = [
+#        bundle3(fase1, voltage_of_char_tri(config[1]));
+#        bundle3(fase2, voltage_of_char_tri(config[2]));
+#        bundle3(fase3, voltage_of_char_tri(config[3]));
+#        bundle3(fase4, voltage_of_char_tri(config[4]));
+#        bundle3(fase5, voltage_of_char_tri(config[5]));
+#        bundle3(fase6, voltage_of_char_tri(config[6]))
+#    ]
+#    (j, ϕ, i) = create_jϕi(bundle_vector)
+#    (E, x) = calculate_E(j, ϕ, i, 1, 180, 200)
+#
+#    Emed = E[1:end, 1]
+#
+#    for i in 1:size(E, 1)
+#        Emed[i, 1] = mean(E[i, 1:end])
+#    end
+#
+#    local outfile = "tri-todos/" * config * ".dat"
+#
+#    open(outfile, "w") do io
+#        writedlm(io, [x Emed])
+#    end
+#end
 
-pointvector = []
-x = range(-100, 100, 200)
-for i in x
-    global pointvector = [pointvector; Point(i, altura)]
+function remove_reversed_duplicates(words::Vector{String})
+    seen = Set{String}()
+    result = String[]
+
+    for word in words
+        reversed = reverse(word)
+        if word ∉ seen && reversed ∉ seen
+            push!(seen, word)
+            push!(seen, reversed)
+            push!(result, word)
+        end
+    end
+
+    return result
 end
 
-#println("pointvector:")
-#println(pointvector)
-pointvector = Vector{Point}(pointvector)
+config_phases_hex = String.(collect(Combinatorics.permutations("abcdef")))
+config_phases_hex = identity.(config_phases_hex)
+config_phases_hex = remove_reversed_duplicates(config_phases_hex)
 
-E = calculate_electric_field_vector(pointvector, j, Q_at_specific_times[1:end, 1])
-for i in 2:size(Q_at_specific_times, 2)
-    global E = [E calculate_electric_field_vector(pointvector, j, Q_at_specific_times[1:end, i])]
+for config in config_phases_hex
+    bundle_vector = [
+        bundle3(fase1, voltage_of_char_hex(config[1]));
+        bundle3(fase2, voltage_of_char_hex(config[2]));
+        bundle3(fase3, voltage_of_char_hex(config[3]));
+        bundle3(fase4, voltage_of_char_hex(config[4]));
+        bundle3(fase5, voltage_of_char_hex(config[5]));
+        bundle3(fase6, voltage_of_char_hex(config[6]))
+    ]
+    (j, ϕ, i) = create_jϕi(bundle_vector)
+    (E, x) = calculate_E(j, ϕ, i, 1, 180, 200)
+
+    Emed = E[1:end, 1]
+
+    for i in 1:size(E, 1)
+        Emed[i, 1] = mean(E[i, 1:end])
+    end
+
+    local outfile = "hexa-todos/" * config * ".dat"
+
+    open(outfile, "w") do io
+        writedlm(io, [x Emed])
+    end
 end
 
-#E1 = calculate_electric_field_vector(pointvector, j, Q1)
-#E2 = calculate_electric_field_vector(pointvector, j, Q2)
-#E3 = calculate_electric_field_vector(pointvector, j, Q3)
-#E4 = calculate_electric_field_vector(pointvector, j, Q4)
 
-#E = E1
+exit()
+
+
+
+
+(E, x) = calculate_E(j, ϕ, i, 1, 180, 200)
 
 Emed = E[1:end, 1]
 #Emax = E[1:end, 1]
 #Emin = E[1:end, 1]
 
-using Statistics
 for i in 1:size(E, 1)
     global Emed[i, 1] = mean(E[i, 1:end])
 end
@@ -347,10 +422,9 @@ end
 
 #println("E: $E")
 
-using DelimitedFiles
-open(outfile, "w") do io
-    writedlm(io, [x Emed])
-end
+#open(outfile, "w") do io
+#    writedlm(io, [x Emed])
+#end
 
 #using Plots
 #plt = plot(x, [Emax, Emed], pallete=:acton, title="Campo elétrico ao nível do solo (1m)", label=["Radwan (máximo)" "Radwan (médio)"])
