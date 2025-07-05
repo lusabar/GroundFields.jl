@@ -111,7 +111,11 @@ function calculate_E(j::Vector{Point}, ϕ::Vector{Nums}, i::Vector{Point}, point
         return qt
     end
 
-    times = range(0, 16.67e-3, n_times)
+    if n_times > 1
+        times = range(0, 16.67e-3, n_times)
+    else
+        times = [0]
+    end
     Q_at_specific_times = value_at_t.(Q, 0)
     for i in 2:length(times)
         Q_at_specific_times = [Q_at_specific_times value_at_t.(Q, times[i])]

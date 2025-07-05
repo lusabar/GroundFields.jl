@@ -1,6 +1,6 @@
 include("GroundFields.jl")
 using .GroundFields
-using Statistics
+using Statistics, StatsBase
 using DelimitedFiles
 using Combinatorics
 
@@ -11,6 +11,10 @@ function rms(values::Array)
         squared_sum = squared_sum + value^2
     end
     return sqrt(squared_sum / n)
+end
+
+function rms_wrong(values::Array)
+    return maximum(values) / sqrt(2)
 end
 
 const outdir = "results-radwan-ground/"
@@ -27,6 +31,7 @@ const D3 = 0.45
 const yshift = √(D2^2 - (D1 / 2)^2)
 const n = 6
 # Voltage line-ground peak
+# FIX: Ajustar a tensão para o valor de pico da tensão fase-terra
 const vlgpk = (500e+3 / sqrt(3)) * sqrt(2)
 const va = pol(vlgpk, 0)
 const vb = pol(vlgpk, -120)
@@ -51,18 +56,6 @@ function bundle3(center::Point, voltage::Number)
     end
     return identity.(bundle_conductors)
 end
-
-function get_bundle_centers(center::Point, rb::Number)
-    bundle_centers = []
-    for i in 0:5
-        ϕ = deg2rad(i * 60)
-        bundle_centers = [bundle_centers;
-            center + Point(rb * cos(ϕ), rb * sin(ϕ))
-        ]
-    end
-    return identity.(bundle_centers)
-end
-
 
 #bundle_centers = [get_bundle_centers(faseA, rb); get_bundle_centers(faseB, rb); get_bundle_centers(faseC, rb)]
 
@@ -104,24 +97,51 @@ function create_groundlevel_pointvector(height::Number, lim_inf::Number, lim_sup
     return identity.(vector)
 end
 
+const time_points = 720
+const x_points = 41
+
 #pointvector = create_pointvector(bundle_centers)
-pointvector = create_groundlevel_pointvector(1, -100, 100, 401)
+pointvector = create_groundlevel_pointvector(1, -100, 100, x_points)
 #for point in pointvector
 #    println(point)
 #end
+#
 
+E = calculate_E(j, ϕ, i, pointvector, time_points)
 
-E = calculate_E(j, ϕ, i, pointvector, 720)
-
-Emed = E[1:end, 1]
+Emed = E[:, 1]
 
 for i in 1:size(E, 1)
-    Emed[i, 1] = rms(E[i, 1:end])
+    Emed[i, 1] = rms(E[i, :])
 end
 
 outpath = outdir * outfile * "-$(H).dat"
+#outpath = outdir * "radwan_time_rms.dat"
 
 open(outpath, "w") do io
     #writedlm(io, [pointvector Emed])
-    writedlm(io, [getfield.(pointvector, :posx) getfield.(pointvector, :posy) Emed])
+    #writedlm(io, [getfield.(pointvector, :posx) getfield.(pointvector, :posy) Emed])
+    writedlm(io, [getfield.(pointvector, :posx) getfield.(pointvector, :posx) Emed]) # não Campo elétrico em kV/m
+end
+
+exit()
+
+
+# Single Point
+E_0_1 = E[20, :]
+t = range(0, 16.67, time_points)
+x = range(-60, 60, x_points)
+
+# x y z
+# x E t
+xet = [1 2 3]
+for k in 1:length(E[:, 1])
+    for i in 1:length(t)
+        global xet = [xet; x[k] (E[k, i]/1000) t[i]] # Campo elétrico em kV/m
+    end
+end
+
+open(outdir * "radwan_time.dat", "w") do io
+    #writedlm(io, [t E_0_1])
+    writedlm(io, xet[2:end, :])
 end

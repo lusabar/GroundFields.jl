@@ -5,7 +5,6 @@ using Statistics
 struct Permutation
     config::String
     Emax::Number
-    Emed::Number
 end
 
 function remove_reversed_duplicates(words::Vector{String})
@@ -31,20 +30,19 @@ config_phases_hex = remove_reversed_duplicates(config_phases_hex)
 permut_vec = []
 for config in config_phases_hex
     current = readdlm(config * ".dat")
-    Emax = maximum(current[:, 2])
-    Emed = mean(current[:, 2])
-    global permut_vec = [permut_vec; Permutation(config, Emax, Emed)]
+    Emax = maximum(current[:, 3])
+    global permut_vec = [permut_vec; Permutation(config, Emax)]
 end
 
-#max_vec = sort(permut_vec, by=p -> p.Emax, rev=true)
-med_vec = sort(permut_vec, by=p -> p.Emed, rev=true)
+max_vec = sort(permut_vec, by=p -> p.Emax, rev=true)
+#med_vec = sort(permut_vec, by=p -> p.Emed, rev=true)
 
-#println("max_vec:")
-#for i in max_vec
-#    println(i)
-#end
-
-println("med_vec:")
-for i in med_vec
+println("max_vec:")
+for i in max_vec
     println(i)
 end
+
+#println("med_vec:")
+#for i in med_vec
+#    println(i)
+#end

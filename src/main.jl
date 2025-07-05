@@ -13,7 +13,7 @@ end
 #const outfile = "data-usuais/hexa-acebdf.dat"
 
 const R = 23.55e-3 / 2
-const r = 0.05 * R
+const r = 0.5 * R
 const n = 6
 const altura = 1
 # Voltage line-ground peak
@@ -38,6 +38,7 @@ const fase3 = Point(-4.3, 25.07)
 const fase4 = Point(4.3, 25.07)
 const fase5 = Point(4.3, 29.17)
 const fase6 = Point(4.3, 33.27)
+fases = [fase1; fase2; fase3; fase4; fase6; fase6]
 
 const va = pol(vlgpk, 0)
 const vb = pol(vlgpk, -60)
@@ -318,6 +319,22 @@ function voltage_of_char_hex(char::Char)
     end
 end
 
+function create_centers(fases::Vector{Point})
+    centers = []
+    for fase in fases
+        centers = [centers;
+            fase + shift_right;
+            fase + shift_left;
+            fase + shift_bottom
+        ]
+    end
+    centers = identity.(centers)
+    return centers
+end
+
+centers = create_centers(fases)
+
+
 #config_phases_single = String.(collect(Combinatorics.permutations("abc")))
 #config_phases_double = []
 #for x in config_phases_single
@@ -336,7 +353,8 @@ end
 #        bundle3(fase6, voltage_of_char_tri(config[6]))
 #    ]
 #    (j, ϕ, i) = create_jϕi(bundle_vector)
-#    (E, x) = calculate_E(j, ϕ, i, 1, 180, 200)
+#    #(E, x) = calculate_E(j, ϕ, i, 1, 180, 200)
+#    (E, pointvector) = calculate_E(j, ϕ, i, centers, 180, 10, R)
 #
 #    Emed = E[1:end, 1]
 #
@@ -344,10 +362,10 @@ end
 #        Emed[i, 1] = mean(E[i, 1:end])
 #    end
 #
-#    local outfile = "tri-todos/" * config * ".dat"
+#    local outfile = "tri-condutor2/" * config * ".dat"
 #
 #    open(outfile, "w") do io
-#        writedlm(io, [x Emed])
+#        writedlm(io, [getfield.(pointvector, :posx) getfield.(pointvector, :posy) Emed])
 #    end
 #end
 
@@ -372,6 +390,9 @@ config_phases_hex = identity.(config_phases_hex)
 config_phases_hex = remove_reversed_duplicates(config_phases_hex)
 
 for config in config_phases_hex
+    #if isfile("hexa-condutor/" * config * ".dat")
+    #    continue
+    #end
     bundle_vector = [
         bundle3(fase1, voltage_of_char_hex(config[1]));
         bundle3(fase2, voltage_of_char_hex(config[2]));
@@ -381,7 +402,8 @@ for config in config_phases_hex
         bundle3(fase6, voltage_of_char_hex(config[6]))
     ]
     (j, ϕ, i) = create_jϕi(bundle_vector)
-    (E, x) = calculate_E(j, ϕ, i, 1, 180, 200)
+    #(E, x) = calculate_E(j, ϕ, i, 1, 180, 200)
+    (E, pointvector) = calculate_E(j, ϕ, i, centers, 180, 10, R)
 
     Emed = E[1:end, 1]
 
@@ -389,10 +411,11 @@ for config in config_phases_hex
         Emed[i, 1] = mean(E[i, 1:end])
     end
 
-    local outfile = "hexa-todos/" * config * ".dat"
+    local outfile = "hexa-condutor2/" * config * ".dat"
 
     open(outfile, "w") do io
-        writedlm(io, [x Emed])
+        #writedlm(io, [x Emed])
+        writedlm(io, [getfield.(pointvector, :posx) getfield.(pointvector, :posy) Emed])
     end
 end
 
