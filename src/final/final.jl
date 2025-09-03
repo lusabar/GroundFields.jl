@@ -133,6 +133,7 @@ Threads.@threads for config in config_phases_double
     if isfile(outfile_solo) && isfile(outfile_condutor)
         continue
     end
+    printstyled("Iniciada configuração $config\n"; color=:yellow)
     bundle_vector = [
         bundle3(fase1, voltage_of_char_tri(config[1]));
         bundle3(fase2, voltage_of_char_tri(config[2]));
@@ -166,7 +167,7 @@ Threads.@threads for config in config_phases_double
     open(outfile_condutor, "w") do io
         writedlm(io, [getfield.(pointvector, :posx) getfield.(pointvector, :posy) Emed])
     end
-    println("Finalizada configuração $config")
+    printstyled("Finalizada configuração $config\n"; color=:green)
 end
 
 
@@ -182,6 +183,7 @@ Threads.@threads for config in config_phases_hex
     if isfile(outfile_solo) && isfile(outfile_condutor)
         continue
     end
+    printstyled("Iniciada configuração $config\n"; color=:yellow)
     bundle_vector = [
         bundle3(fase1, voltage_of_char_hex(config[1]));
         bundle3(fase2, voltage_of_char_hex(config[2]));
@@ -215,5 +217,5 @@ Threads.@threads for config in config_phases_hex
     open(outfile_condutor, "w") do io
         writedlm(io, [getfield.(pointvector, :posx) getfield.(pointvector, :posy) Emed])
     end
-    println("Finalizada configuração $config")
+    printstyled("Finalizada configuração $config\n"; color=:green)
 end
