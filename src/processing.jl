@@ -6,8 +6,8 @@ function calculate_E(j::Vector{Point}, ϕ::Vector{Nums}, i::Vector{Point}, altur
     #println(P)
 
     Q = (P^-1) * ϕ
-    println("valores de Q:")
-    println(Q)
+    #println("valores de Q:")
+    #println(Q)
     # Valor da senoide num tempo t
     function value_at_t(q::Complex, t::Number)
         ω = 2 * π * 60
